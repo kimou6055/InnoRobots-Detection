@@ -1,6 +1,5 @@
 import cv2
 import time
-from playsound import playsound  # Import playsound library
 import cv2.aruco as aruco
 import numpy as np 
 import pygame
@@ -80,21 +79,6 @@ def Calculate_homography(corners,ids,img, mapx=mapx/1000 , mapy=mapy/1000,homogr
     # Define the 3D coordinates of the map corners assuming z=0
         np.savez(homography_matrix_path, homography_matrix=homography_matrix)
 
-    # if len(image_points) < 4:
-    #     cv2.imshow('Marked Image', img)
-    #     print("Not enough markers detected to compute the homography matrix.")
-    #     homography_matrix = None
-   
     return homography_matrix 
     
-
-def pixel_to_mm(pixelx,pixely,mapdimx=mapy,mapdimy=mapx,imageh=480,imagew=640):
-    threshhold = 0.0001
-    x=pixelx
-    y=pixely
-    mmx = x*(mapdimx/imagew)
-    mmy= mapdimy - y*(mapdimy/imageh)
-    mmx = 0 if mmx < threshhold else mmx 
-    mmy = 0 if mmy < threshhold else mmy
-    return mmx,mmy
 

@@ -3,7 +3,6 @@ import cv2.aruco as aruco
 import numpy as np
 from save_data import save_frame
 from save_data import Calculate_homography
-from save_data import pixel_to_mm
 from Kalman import get_measurements,predict_future_positions_kalman
 import os 
 import sys
@@ -13,34 +12,14 @@ import argparse
 import csv
 
 sys.path.append(r'C:\Users\MSI\Desktop\EURO2024')  # Replace with the absolute path to EURO directory
-###############################################################################
-BLUE_TEAM_RANGE = [1, 5]
-YELLOW_TEAM_RANGE = [6, 10]
 
-color_to_track=YELLOW_TEAM_RANGE
-
-def switch_team(team_color):
-    global current_team_range
-    if team_color.lower() == 'blue':
-        current_team_range = BLUE_TEAM_RANGE
-    elif team_color.lower() == 'yellow':
-        current_team_range = YELLOW_TEAM_RANGE
-    else:
-        print(f"Unknown team color: {team_color}")
-
-###############################################################################
-
-# calib_data_path = r"Vision\calibration\Calib_matrix\MultiMatrixXiaomi.npz"
-# calib_data = np.load(calib_data_path)
-# cameraMatrix = calib_data['camMatrix']
-# distCoeffs = calib_data['distCoef']
 
 marker_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
 aruco_params = aruco.DetectorParameters()
 
 Calculate_homography_manually = False
 homography_calculated= False
-homography_matrix_path = r"C:\Users\MSI\Desktop\EURO2024\Tools\homography_matrix.npz"
+homography_matrix_path = r"E:\esprit_4eme_annee\robotics\InnoRobots-Detection\homography_matrix.npz"
 
 def load_homography_matrix(path):
     try:
@@ -68,7 +47,6 @@ def click_event(event, x, y, flags, param):
     global capture_mode
     if event == cv2.EVENT_LBUTTONDOWN and capture_mode:
         captured_x, captured_y = x, y
-        print(pixel_to_mm(captured_x,captured_y))
         #real_x, real_y = pixel_to_real(captured_x, captured_y, scale_factor, x_offset, y_offset)
         print(f"Captured pixel coordinates: {captured_x}, {captured_y}")
         #print(f"Converted real-world coordinates: {real_x} mm, {real_y} mm")
@@ -78,7 +56,7 @@ cv2.setMouseCallback('Top-Down View', click_event)
 
 mapx = 2
 mapy = 3
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(1)
 cv2.namedWindow("Trackbars")
 
 def nothing(x):
@@ -86,9 +64,7 @@ def nothing(x):
 
 # Create trackbars for adjusting parameters
 cv2.createTrackbar("Marker Length", "Trackbars", 10, 20, nothing)  # Range from 0.1m to 0.2m
-#cv2.createTrackbar("X Aruco", "Trackbars", 516, 1000, nothing)# innovision
 cv2.createTrackbar("X Aruco", "Trackbars", 497, 1000, nothing)# innovision
-#cv2.createTrackbar("Y Aruco", "Trackbars", 755, 1000, nothing) #innovision 
 cv2.createTrackbar("Y Aruco", "Trackbars", 612, 1000, nothing) #innovision 
 
 
@@ -135,19 +111,14 @@ with open(csv_file_path, 'a', newline='') as csvfile:
         ret,img = cap.read()
         if not ret :
             break 
-        
-        #img = cv2.flip(img, -1)
-        #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
+    
         img_top_down = img
-
-
 
         if homography_calculated == False:
             if homography_matrix is None or Calculate_homography_manually == True:
                 corners, ids, rejected = aruco.detectMarkers(img, marker_dict, parameters=aruco_params)
                 homography_matrix = Calculate_homography(corners,ids,img)
-                # print("hhnfdj",homography_matrix)
+             
                 if homography_matrix is not None:
                     Calculate_homography_manually = not Calculate_homography_manually
                     homography_calculated = True
@@ -169,9 +140,7 @@ with open(csv_file_path, 'a', newline='') as csvfile:
             for i in range(map_corners_2d.shape[0]):
                 point = tuple(map_corners_2d[i, 0].astype(int))
                 points.append(point)
-            #cv2.circle(img, point, 10, (0, 255, 0), -1)
-            #cv2.putText(img,str(i),point,cv2.FONT_HERSHEY_COMPLEX,1,(0, 255, 0),2)
-            #print(img.shape)
+           
             src_pts = np.array([points[1],points[0],  points[2], points[3]], dtype='float32')
             dst_pts = np.array([[0,0],[ 0,img.shape[0]],  [img.shape[1], 0], [ img.shape[1],img.shape[0]]], dtype='float32')
             M = cv2.getPerspectiveTransform(src_pts, dst_pts)
@@ -278,13 +247,7 @@ with open(csv_file_path, 'a', newline='') as csvfile:
             # Automatic save every 10 seconds
             pass
             #save_frame(img_top_down, prefix='top_down', interval=12)
-        if key == ord('g'):
-                # Toggle capture mode
-            capture_mode = not capture_mode
-            if capture_mode:
-                print("Capture mode activated. Click on the desired pixel.")
-            else:
-                print("Capture mode deactivated.")
+       
         if key == ord('h'):
             # Toggle the Calculate_homography_manually flag
             Calculate_homography_manually = not Calculate_homography_manually
