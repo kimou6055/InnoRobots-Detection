@@ -4,14 +4,11 @@ import numpy as np
 from save_data import Calculate_homography
 from Kalman import get_measurements,predict_future_positions_kalman
 import os 
-import sys
+
 import imutils
 from collections import deque
 import argparse
 import csv
-
-sys.path.append(r'C:\Users\MSI\Desktop\EURO2024')  # Replace with the absolute path to EURO directory
-
 
 marker_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
 aruco_params = aruco.DetectorParameters()
