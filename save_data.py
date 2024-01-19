@@ -1,37 +1,8 @@
 import cv2
-import time
+
 import cv2.aruco as aruco
 import numpy as np 
-import pygame
 
-def play_sound(sound_file):
-    pygame.mixer.init()
-    pygame.mixer.music.load(sound_file)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy(): 
-        pygame.time.Clock().tick(10)
-
-def save_frame(img, base_path=r'C:\Users\MSI\Desktop\EURO2024\Vision\Data\dataTest_withoutAruco', prefix="frame", interval=10, manual_save=False):
-    last_saved_time = getattr(save_frame, "last_saved_time", 0)
-    current_time = time.time()
-
-    # Time remaining before next automatic capture
-    time_remaining = interval - (current_time - last_saved_time)
-
-    # If manual save or time to save frame based on interval
-    if manual_save or time_remaining <= 0:
-        filename = f"{prefix}_{int(current_time)}.jpg"
-        cv2.imwrite(f"{base_path}\\{filename}", img)
-        save_frame.last_saved_time = current_time
-   
-        print(f"Saved: {filename}")
-    elif time_remaining <= 3 and not getattr(save_frame, "sound_played", False):
-
-        save_frame.sound_played = True  # Set flag to avoid replaying sound
-    elif time_remaining > 3:
-        save_frame.sound_played = False
-
-#####################################################################################
 
 
 mapx=2000
